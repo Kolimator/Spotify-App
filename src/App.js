@@ -19,11 +19,16 @@ let fakeServerData = {
 
 
 class Filter extends Component{
+    handelchange =(event)=>{
+        this.props.onTextChange(event.target.value)
+
+
+    }
     render(){
         return(
             <div style={defaultStyle}>
                 <img/>
-                <input type="text"/>
+                <input onKeyUp={this.handelchange} type="text"/>
                 Filter
 
             </div>
@@ -78,11 +83,14 @@ class Playlist extends Component{
 class App extends Component {
     constructor(props){
         super(props)
-        this.state = {serverData: {}}
+        this.state = {serverData: {},
+        filterString:""}
     }
     componentDidMount(){
         setTimeout(()=>{this.setState({serverData:fakeServerData})}
         ,3000)
+        setTimeout(()=>{this.setState({filterString:"cool"})},
+            4000)
 
     }
   render() {
@@ -95,8 +103,12 @@ class App extends Component {
 
                   <HoursCounter playlists={this.state.serverData.user.playlists}/>
 
-                  <Filter/>
-                  {this.state.serverData.user.playlists.map(playlist => {
+                  <Filter onTextChange={text => this.setState({filterString: text})}/>
+                  {this.state.serverData.user.playlists.filter(playlist=>{
+                      return playlist.name.toLowerCase().includes(this.state.filterString.toLocaleLowerCase())
+                      }
+
+                  ).map(playlist => {
                       return <Playlist playlist={playlist}/>
                   })}
               </div> : <h2 style={defaultStyle}>Loading ...</h2>
