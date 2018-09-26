@@ -13,7 +13,7 @@ let fakeServerData = {
         playlists: [{name:"Superplaylist",songs:[{name:"yeah song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]},
             {name:"Coolplylist",songs:[{name:"yeah song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]},
             {name:"Duperplaylist",songs:[{name:"yeah song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]},
-            {name:"MegaPlaylist",songs:[{name:"yeah song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]}]
+            {name:"MegaPlaylist",songs:[{name:"all song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]}]
     }
 }
 
@@ -64,11 +64,11 @@ class Playlist extends Component{
         return(
             <div style={{...defaultStyle,display: "inline-block", width:"25%"}}>
                 <img/>
-                <h3>Playlist Name</h3>
+                <h3>{this.props.playlist.name}</h3>
                 <ul>
-                    <li>Song 1</li>
-                    <li>Song 2</li>
-                    <li>Song 3</li>
+                    {this.props.playlist.songs.map(song=>{
+                        return <li>{song.name}</li>
+                    })}
                 </ul>
             </div>
 
@@ -88,17 +88,19 @@ class App extends Component {
   render() {
     return (
       <div className="App" style={defaultColor}>
-          {this.state.serverData.user && <h1 style={{...defaultStyle,"font-size":"54px"}}> {this.state.serverData.user.name}' playlist</h1>}
-          {this.state.serverData.user &&
+          {this.state.serverData.user ?
               <div>
-          <PlaylistCounter playlists={ this.state.serverData.user.playlists}/>
-          <HoursCounter  playlists={ this.state.serverData.user.playlists}/>
-              </div>}
-          <Filter/>
-          <Playlist/>
-          <Playlist/>
-          <Playlist/>
-          <Playlist/>
+                  <h1 style={{...defaultStyle, "font-size": "54px"}}> {this.state.serverData.user.name}' playlist</h1>
+                  <PlaylistCounter playlists={this.state.serverData.user.playlists}/>
+
+                  <HoursCounter playlists={this.state.serverData.user.playlists}/>
+
+                  <Filter/>
+                  {this.state.serverData.user.playlists.map(playlist => {
+                      return <Playlist playlist={playlist}/>
+                  })}
+              </div> : <h2 style={defaultStyle}>Loading ...</h2>
+          }
       </div>
     );
   }
