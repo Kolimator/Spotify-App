@@ -1,21 +1,13 @@
 import React, { Component } from 'react';
-
 import './App.css';
+import queryString from "query-string"
+
 let defaultColor = {color:"white"}
 let defaultStyle={
     color: defaultColor,
 
 }
 
-let fakeServerData = {
-    user: {
-        name: "Koli",
-        playlists: [{name:"Superplaylist",songs:[{name:"yeah song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]},
-            {name:"Coolplylist",songs:[{name:"yeah song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]},
-            {name:"Duperplaylist",songs:[{name:"yeah song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]},
-            {name:"MegaPlaylist",songs:[{name:"all song",duration:433323},{name:"cool song",duration:43345},{name:"zubi song",duration:543345}]}]
-    }
-}
 
 
 class Filter extends Component{
@@ -68,7 +60,7 @@ class Playlist extends Component{
     render(){
         return(
             <div style={{...defaultStyle,display: "inline-block", width:"25%"}}>
-                <img/>
+                <img src={this.props.playlist.image} style={{width: "160px"}}/>
                 <h3>{this.props.playlist.name}</h3>
                 <ul>
                     {this.props.playlist.songs.map(song=>{
@@ -87,31 +79,61 @@ class App extends Component {
         filterString:""}
     }
     componentDidMount(){
-        setTimeout(()=>{this.setState({serverData:fakeServerData})}
-        ,3000)
-        setTimeout(()=>{this.setState({filterString:"cool"})},
-            4000)
+        let parsed = queryString.parse(window.location.search);
+        console.log(parsed.access_token)
+        
+
+        fetch(	"https://api.spotify.com/v1/me",{
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            }
+        }).then(response => response.json()
+        ).then(data => this.setState({user:
+                {name:data.display_name}
+        })
+        );
+
+        fetch(	"https://api.spotify.com/v1/me/playlists",{
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            }
+        }).then(response => response.json()
+        ).then(data => this.setState({
+            playlists:data.items.map(
+                item =>({
+                    name:item.name,
+                    image:item.images[0].url,
+                    songs:[]
+                })
+            )
+        }))
+
+
+
 
     }
+
   render() {
+        let playlistToRender = this.state.user && this.state.playlists ? this.state.playlists.filter(playlist=>{
+            return playlist.name.toLowerCase().includes(this.state.filterString.toLocaleLowerCase())
+        }) : [];
     return (
       <div className="App" style={defaultColor}>
-          {this.state.serverData.user ?
+          {this.state.user ?
               <div>
-                  <h1 style={{...defaultStyle, "font-size": "54px"}}> {this.state.serverData.user.name}' playlist</h1>
-                  <PlaylistCounter playlists={this.state.serverData.user.playlists}/>
+                  <h1 style={{...defaultStyle, "font-size": "54px"}}> {this.state.user.name}' playlist</h1>
 
-                  <HoursCounter playlists={this.state.serverData.user.playlists}/>
+
+                  <PlaylistCounter playlists={playlistToRender}/>
+
+                  <HoursCounter playlists={playlistToRender}/>
 
                   <Filter onTextChange={text => this.setState({filterString: text})}/>
-                  {this.state.serverData.user.playlists.filter(playlist=>{
-                      return playlist.name.toLowerCase().includes(this.state.filterString.toLocaleLowerCase())
-                      }
-
-                  ).map(playlist => {
+                  {playlistToRender.map(playlist =>{
                       return <Playlist playlist={playlist}/>
                   })}
-              </div> : <h2 style={defaultStyle}>Loading ...</h2>
+
+              </div> : <button onClick={()=>{window.location="http://localhost:8888/login"}} style={{...defaultStyle,"padding":"20px" , "font-size":"54px", "position":"fixed", "top":"20%",}}>Login into spotify</button>
           }
       </div>
     );
