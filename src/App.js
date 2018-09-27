@@ -82,6 +82,7 @@ class App extends Component {
         let parsed = queryString.parse(window.location.search);
 
         let accessToken = parsed.access_token;
+        if(!accessToken) return;
 
 
         fetch(	"https://api.spotify.com/v1/me",{
@@ -135,8 +136,8 @@ class App extends Component {
                   })}
 
               </div> : <button onClick={() => {
-                  window.location = window.location.href.includes("localhosy")
-                      ? "http://loocalhost:8888/login"
+                  window.location = window.location.href.includes("localhost")
+                      ? "http://localhost:8888/login"
                       : "https://spotify-backend-superapp.herokuapp.com/login"
               }
               }
