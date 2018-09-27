@@ -134,7 +134,13 @@ class App extends Component {
                       return <Playlist playlist={playlist}/>
                   })}
 
-              </div> : <button onClick={()=>{window.location="http://localhost:8888/login"}} style={{...defaultStyle,"padding":"20px" , "font-size":"54px", "position":"fixed", "top":"20%",}}>Login into spotify</button>
+              </div> : <button onClick={() => {
+                  window.location = window.location.href.includes("localhosy")
+                      ? "http://loocalhost:8888/login"
+                      : "https://spotify-backend-superapp.herokuapp.com/login"
+              }
+              }
+                               style={{...defaultStyle,"padding":"20px" , "font-size":"54px", "position":"fixed", "top":"20%",}}>Login into spotify</button>
           }
       </div>
     );
