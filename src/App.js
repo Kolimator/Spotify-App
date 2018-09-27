@@ -80,8 +80,9 @@ class App extends Component {
     }
     componentDidMount(){
         let parsed = queryString.parse(window.location.search);
-        console.log(parsed.access_token)
-        
+
+        let accessToken = parsed.access_token;
+
 
         fetch(	"https://api.spotify.com/v1/me",{
             headers: {
