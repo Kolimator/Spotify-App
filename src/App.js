@@ -118,7 +118,7 @@ class App extends Component {
                             .map(trackData =>({
                                 name:trackData.name,
                                 duration:trackData.duration_ms /1000
-                                
+
                             }))
                     })
                     return playlists
@@ -148,7 +148,9 @@ class App extends Component {
 
   render() {
         let playlistToRender = this.state.user && this.state.playlists ? this.state.playlists.filter(playlist=>{
-            return playlist.name.toLowerCase().includes(this.state.filterString.toLocaleLowerCase())
+            let matchesPlaylist = playlist.name.toLowerCase().includes(this.state.filterString.toLocaleLowerCase())
+            let matchesSong =playlist.songs.find(song =>song.name.toLowerCase().includes(this.state.filterString.toLowerCase()))
+                return matchesPlaylist || matchesSong
         }) : [];
     return (
       <div className="App" style={defaultColor}>
