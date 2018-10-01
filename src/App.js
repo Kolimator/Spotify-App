@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import './App.css';
 import queryString from "query-string"
+import  Filter from "./Filter.js"
+import PlaylistCounter from "./PlaylistCounter.js"
+import HoursCounter from "./HoursCounter.js"
+import Playlist from "./Playlist.js"
+import PlaylistOverview from "./PlaylistOverview"
+import ArtistSearch from "./ArtistSearch"
 
 let defaultColor = {color:"white"}
 let defaultStyle={
@@ -10,68 +17,9 @@ let defaultStyle={
 
 
 
-class Filter extends Component{
-    handelchange =(event)=>{
-        this.props.onTextChange(event.target.value)
 
 
-    }
-    render(){
-        return(
-            <div style={defaultStyle}>
-                <img/>
-                <input onKeyUp={this.handelchange} type="text"/>
-                Filter
 
-            </div>
-        )
-    }
-}
-
-class PlaylistCounter extends Component{
-    render(){
-        return(
-            <div style={{...defaultStyle,width:"40%",display: "inline-block" }}>
-                <h2 style={defaultStyle}>{this.props.playlists && this.props.playlists.length} playlists</h2>
-            </div>
-        )
-    }
-}
-class HoursCounter extends Component{
-    render(){
-        let allSongs = this.props.playlists.reduce((songs,eachPlaylist)=>{
-            return songs.concat(eachPlaylist.songs)
-        },[])
-        let totalDuration =allSongs.reduce((sum,eachSong)=>{
-            return sum + eachSong.duration
-        },0)
-        return(
-            <div style={{...defaultStyle,width:"40%",display: "inline-block" }}>
-                <h2 style={defaultStyle}>{Math.round(totalDuration/60)} hours</h2>
-            </div>
-        )
-    }
-}
-
-
-class Playlist extends Component{
-
-
-    render(){
-        return(
-            <div style={{...defaultStyle,display: "inline-block", width:"25%"}}>
-                <img src={this.props.playlist.image} style={{width: "160px"}}/>
-                <h3>{this.props.playlist.name}</h3>
-                <ul>
-                    {this.props.playlist.songs.map(song=>{
-                        return <li>{song.name}</li>
-                    })}
-                </ul>
-            </div>
-
-        )
-    }
-}
 class App extends Component {
     constructor(props){
         super(props)
@@ -83,6 +31,8 @@ class App extends Component {
 
         let accessToken = parsed.access_token;
         if(!accessToken) return;
+
+
 
 
         fetch(	"https://api.spotify.com/v1/me",{
@@ -127,7 +77,7 @@ class App extends Component {
                 return playlistsPromise
             })
             .then(playlists => this.setState({
-            playlists : playlists.map(item =>{
+                playlists : playlists.map(item =>{
                 console.log(item.trackDatas)
                 return {
                     name:item.name,
@@ -147,28 +97,17 @@ class App extends Component {
     }
 
   render() {
-        let playlistToRender = this.state.user && this.state.playlists ? this.state.playlists.filter(playlist=>{
-            let matchesPlaylist = playlist.name.toLowerCase().includes(this.state.filterString.toLocaleLowerCase())
-            let matchesSong =playlist.songs.find(song =>song.name.toLowerCase().includes(this.state.filterString.toLowerCase()))
-                return matchesPlaylist || matchesSong
-        }) : [];
+
     return (
       <div className="App" style={defaultColor}>
           {this.state.user ?
-              <div>
-                  <h1 style={{...defaultStyle, "font-size": "54px"}}> {this.state.user.name}' playlist</h1>
-
-
-                  <PlaylistCounter playlists={playlistToRender}/>
-
-                  <HoursCounter playlists={playlistToRender}/>
-
-                  <Filter onTextChange={text => this.setState({filterString: text})}/>
-                  {playlistToRender.map(playlist =>{
-                      return <Playlist playlist={playlist}/>
-                  })}
-
-              </div> : <button onClick={() => {
+              <Router>
+                  <div>
+              <PlaylistOverview user={this.state.user} playlist={this.state.playlists}/>
+              <ArtistSearch/>
+                  </div>
+              </Router>
+                   : <button onClick={() => {
                   window.location = window.location.href.includes("localhost")
                       ? "http://localhost:8888/login"
                       : "https://spotify-backend-superapp.herokuapp.com/login"
@@ -181,4 +120,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default  App;
