@@ -11,13 +11,18 @@ let defaultStyle={
 
 class ButtonLogin extends Component {
     render(){
-        return <button onClick={() => {
+        return<div style={defaultStyle}>
+            <h1> Welcome on my Spotify api web app</h1>
+            <div>This app will show your basic details, playlists and allows you to search artist and listen to his top 10 tracks</div>
+            <div> To login use fake account email:wolk2018201810@gmail.com , password : random12345 or use your real account</div>
+
+            <button style={{"font-size":"54px","margin-top":"20px"}} onClick={() => {
             window.location = window.location.href.includes("localhost")
                 ? "http://localhost:8888/login"
-                : "https://spotify-backend-superapp.herokuapp.com/login"
+                : "https://spotify-backend-superapp.herokuapp.com/login"}
         }
-        }
-                      style={{...defaultStyle,"padding":"20px" , "font-size":"54px", "position":"fixed", "top":"20%",}}>Login into spotify</button>
+                      >Login into spotify</button>
+        </div>
     }
 }
 
