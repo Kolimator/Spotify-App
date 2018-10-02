@@ -4,7 +4,10 @@ import {FormGroup,FormControl,InputGroup,Glyphicon} from "react-bootstrap"
 import Profile from "./Profile"
 import Gallery from "./Gallery"
 import queryString from "query-string";
-
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faStroopwafel,faArrowCircleRight,faArrowCircleDown,faSearch } from '@fortawesome/free-solid-svg-icons'
+library.add(faSearch)
 
 class ArtistSearch extends Component {
 
@@ -69,19 +72,18 @@ class ArtistSearch extends Component {
         }
     }
     render(){
+        let displaySetting;
+        if(this.props.show){
+            displaySetting={display:"block"}
+        }else{
+            displaySetting={display:"none"}
+        }
         return(
-            <div className="App">
-                <h1 className="App-title">React-Spotify</h1>
-                <FormGroup>
-                    <InputGroup>
-                        <FormControl type="text" placeholder="search an artist..." onChange={this.handleChange} onKeyPress={this.handleKeyPress}/>
-
-                        <InputGroup.Addon>
-                            <Glyphicon glyph="search" onClick={this.handleClick} />
-
-                        </InputGroup.Addon>
-                    </InputGroup>
-                </FormGroup>
+            <div className="ShowArtist" style={displaySetting}>
+                <div className="search-bar">
+                    <input type="text" placeholder="search an artist..." onChange={this.handleChange} onKeyPress={this.handleKeyPress}/>
+                    <FontAwesomeIcon icon="search" onClick={this.handleClick} />
+                </div>
                 {this.state.artist !== null ? <div><Profile artist={this.state.artist} />
                         <Gallery tracks={this.state.tracks}/>
                     </div>

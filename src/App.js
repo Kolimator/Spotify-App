@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Link,Switch } from 'react-router-dom'
 import './App.css';
 import queryString from "query-string"
-import  Filter from "./Filter.js"
-import PlaylistCounter from "./PlaylistCounter.js"
-import HoursCounter from "./HoursCounter.js"
-import Playlist from "./Playlist.js"
+import {FormGroup,FormControl,InputGroup,Glyphicon} from "react-bootstrap"
 import PlaylistOverview from "./PlaylistOverview"
 import ArtistSearch from "./ArtistSearch"
+import ButtonLogin from "./ButtonLogin"
+import {CSSTransition} from "react-transition-group"
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faStroopwafel,faArrowCircleRight,faArrowCircleDown,faSearch } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faStroopwafel,faArrowCircleRight,faArrowCircleDown,faSearch)
+
 
 let defaultColor = {color:"white"}
 let defaultStyle={
@@ -15,21 +20,72 @@ let defaultStyle={
 
 }
 
+class OverView extends Component{
+    constructor(props){
+        super(props)
+        this.state={}
+    }
+
+    componentDidMount() {
+        let parsed = queryString.parse(window.location.search);
+
+        let accessToken = parsed.access_token;
+        if (!accessToken) return;
+
+        fetch("https://api.spotify.com/v1/me", {
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            }
+        }).then(response => response.json()).then(userInformation =>  { let overinfo = userInformation
+
+                 this.setState({overinfo:overinfo})}
+
+            )
+    }
+    render(){
+        console.log(this.state.overinfo)
+        let overinfo = this.state.overinfo
+        return(<div>
+            {this.state.overinfo ? <div className="user-profile">
+                <img className="user-img" src={overinfo.images[0].url}/>
+                <div>Type of accout:{overinfo.product}</div>
+                <div>Country: {overinfo.country}</div>
+                <div>Number of followers:{overinfo.followers.total}</div>
+
+            </div> :<div>Unload</div>}
+        </div>)
+    }
+}
 
 
 
 
 
 class App extends Component {
+    togglePlaylist = ()=>{
+        this.setState({showPlaylist:!this.state.showPlaylist})
+        console.log(this.state.showPlaylist)
+    }
+    toggleArtist = ()=>{
+        this.setState({showArtist:!this.state.showArtist})
+        console.log(this.state.showArtist)
+    }
     constructor(props){
         super(props)
         this.state = {serverData: {},
-        filterString:""}
+        filterString:"",
+            showPlaylist : false,
+            showArtist : false
+        }
     }
     componentDidMount(){
         let parsed = queryString.parse(window.location.search);
 
+
         let accessToken = parsed.access_token;
+        console.log(accessToken)
+        console.log(accessToken +  "parsed tokken")
+
         if(!accessToken) return;
 
 
@@ -44,56 +100,6 @@ class App extends Component {
                 {name:data.display_name}
         })
         );
-
-        fetch(	"https://api.spotify.com/v1/me/playlists",{
-            headers: {
-                'Authorization': 'Bearer ' + accessToken
-            }
-        }).then(response => response.json())
-            .then(playlistData => {
-                let playlists = playlistData.items
-                let trackDataPromises = playlists.map(playlist =>{
-                   let responsePromise = fetch(playlist.tracks.href,{headers: {
-                        'Authorization': 'Bearer ' + accessToken}
-
-
-                    })
-                       let trackDataPromise = responsePromise.then(response =>response.json())
-                       return trackDataPromise
-                })
-                let allTrackDatasPromises= Promise.all(trackDataPromises)
-                   let playlistsPromise = allTrackDatasPromises.then(trackDatas =>{
-                    trackDatas.forEach((trackData,i) =>{
-                        playlists[i].trackDatas = trackData.items.map(item => item.track)
-                            .map(trackData =>({
-                                name:trackData.name,
-                                duration:trackData.duration_ms /1000
-
-                            }))
-                    })
-                    return playlists
-
-                })
-                return playlistsPromise
-            })
-            .then(playlists => this.setState({
-                playlists : playlists.map(item =>{
-                console.log(item.trackDatas)
-                return {
-                    name:item.name,
-                    imageUrl: item.images[0].url,
-                    songs: item.trackDatas.slice(0,3)
-
-                }
-            }
-
-
-            )
-        }))
-
-
-
-
     }
 
   render() {
@@ -101,19 +107,23 @@ class App extends Component {
     return (
       <div className="App" style={defaultColor}>
           {this.state.user ?
-              <Router>
+
                   <div>
-              <PlaylistOverview user={this.state.user} playlist={this.state.playlists}/>
-              <ArtistSearch/>
+                      <h2> Witaj {this.state.user.name}</h2>
+                      <OverView/>
+                      <div className="PlaylistButton" onClick={this.togglePlaylist}  >{(this.state.showPlaylist) ? <FontAwesomeIcon style={{"float":"left"}} icon="arrow-circle-down" />:<FontAwesomeIcon style={{"float":"left"}} icon="arrow-circle-right" /> }Yours playlist</div>
+
+                      <PlaylistOverview user={this.state.user} playlist={this.state.playlists} show={this.state.showPlaylist} />
+                      <div className="ArtistButton" onClick={this.toggleArtist}>{(this.state.showArtist) ? <FontAwesomeIcon style={{"float":"left"}} icon="arrow-circle-down" />:<FontAwesomeIcon style={{"float":"left"}} icon="arrow-circle-right" /> } Find your favourite artist</div>
+
+                      <ArtistSearch show={this.state.showArtist}/>
+
+
+
                   </div>
-              </Router>
-                   : <button onClick={() => {
-                  window.location = window.location.href.includes("localhost")
-                      ? "http://localhost:8888/login"
-                      : "https://spotify-backend-superapp.herokuapp.com/login"
-              }
-              }
-                               style={{...defaultStyle,"padding":"20px" , "font-size":"54px", "position":"fixed", "top":"20%",}}>Login into spotify</button>
+
+
+                   : <ButtonLogin/>
           }
       </div>
     );

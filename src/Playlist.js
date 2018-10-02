@@ -14,7 +14,7 @@ class Playlist extends Component{
             <div style={{...defaultStyle,display: "inline-block", width:"25%"}}>
                 <img src={this.props.playlist.imageUrl} style={{width: "160px"}}/>
                 <h3>{this.props.playlist.name}</h3>
-                <ul>
+                <ul style={{"list-style-type": "none"}}>
                     {this.props.playlist.songs.map(song=>{
                         return <li>{song.name}</li>
                     })}

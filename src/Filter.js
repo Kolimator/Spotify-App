@@ -17,10 +17,10 @@ class Filter extends Component{
     }
     render(){
         return(
-            <div style={defaultStyle}>
-                <img/>
-                <input onKeyUp={this.handelchange} type="text"/>
-                Filter
+            <div className="search-bar" style={defaultStyle}>
+
+                <input  placeholder="Filter" onKeyUp={this.handelchange} type="text"/>
+
 
             </div>
         )
